@@ -7,10 +7,63 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Annotation\ApiFilter;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AuteurRepository")
- * @ApiResource()
+ * @ApiResource(
+*        attributes = {
+*            "pagination_enabled"=false
+*        },
+ *       collectionOperations = {
+ *          "get" = {
+ *              "method"="get",
+ *              "path" = "/auteurs",
+ *              "normalization_context" = {
+ *                  "groups"= {"get_role_auteurs"}
+ *              }
+ *          },
+ *          "post"={
+ *              "method"="POST",
+ *              "access_control"="is_granted('ROLE_MANAGER')",
+ *              "access_control_message"="Vous n'avez pas les droits d'accéder à cette ressource"
+ *          },
+ *      },
+ *      itemOperations = {
+ *          "get" = {
+ *              "method"="get",
+ *              "path" = "/auteurs/{id}",
+ *              "normalization_context" = {
+ *                  "groups"= {"get_role_auteurs"}
+ *              }
+ *          },
+ *          "put"={
+ *              "method"="PUT",
+ *              "path"="/auteurs/{id}",
+ *              "access_control"="is_granted('ROLE_MANAGER')",
+ *              "access_control_message"="Vous n'avez pas les droits d'accéder à cette ressource",
+ *              "denormalization_context" = {
+ *                  "groups"={"put_manager"}
+ *              }
+ *          },
+ *          "delete"={
+ *              "method"="DELETE",
+ *              "path"="/auteurs/{id}",
+ *              "access_control"="is_granted('ROLE_ADMIN')",
+ *              "access_control_message"="Vous n'avez pas les droits d'accéder à cette ressource"
+ *          }
+ *      }
+ * )
+ * 
+ * @ApiFilter(
+ *      SearchFilter::class,
+ *      properties = {
+ *          "nom":"ipartial",
+ *          "prenom":"ipartial",
+ *          "nationalite":"exact"
+ *      }
+ * )
  */
 class Auteur
 {
@@ -18,27 +71,32 @@ class Auteur
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"get_role_auteurs", "put_manager", "get_role_adherent"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"get_role_auteurs", "put_manager", "get_role_adherent"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"get_role_auteurs", "put_manager", "get_role_adherent"})
      */
     private $prenom;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Nationalite", inversedBy="auteurs")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"get_role_auteurs", "put_manager", "get_role_adherent"})
      */
-    private $Nationalite;
+    private $nationalite;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Livre", mappedBy="auteur")
+     * @Groups({"get_role_auteurs"})
      */
     private $livres;
 
@@ -76,14 +134,14 @@ class Auteur
         return $this;
     }
 
-    public function getNationalite(): ?Nationalite
+    public function getNationalite(): ?nationalite
     {
-        return $this->Nationalite;
+        return $this->nationalite;
     }
 
-    public function setNationalite(?Nationalite $Nationalite): self
+    public function setNationalite(?nationalite $nationalite): self
     {
-        $this->Nationalite = $Nationalite;
+        $this->nationalite = $nationalite;
 
         return $this;
     }

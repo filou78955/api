@@ -7,15 +7,65 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;  
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AdherentRepository")
- * @ApiResource()
+ * @ApiResource(
+ *      collectionOperations = {
+ *          "get" = {
+ *              "method"="get",
+ *              "path" = "/adherents",
+ *              "normalization_context" = {
+ *                  "groups"= {"get_adherent"}
+ *              }
+ *          },
+ *          "post"={
+ *              "method"="POST",
+ *              "denormalization_context" = {
+ *                  "groups"={"post_manager"}
+ *              }
+ *          }
+ *          
+ *      },
+ *      itemOperations = {
+ *          "GET" = {
+ *              "method"="GET",
+ *              "path" = "/adherents/{id}",
+ *              "normalization_context" = {
+ *                  "groups"={"get_adherent"}
+ *              }
+ *          },
+ *          
+ *          "PUT" = {
+ *              "method"="put",
+ *              "path" = "/adherents/{id}",
+ *              "denormalization_context" = {
+ *                  "groups"={"put_adherent"}
+ *              }
+ *          },
+ *          "delete"={
+ *              "method"="DELETE",
+ *              "path"="/adherents/{id}",
+ *              "access_control"="is_granted('ROLE_ADMIN')",
+ *              "access_control_message"="Vous n'avez pas les droits d'accéder à cette ressource"
+ *          }
+ *      }
+ * )
  * @UniqueEntity(
- * fields={"mail"},
- * message= "il existe déjà un mail {{ value }}, veuillez saisir un autre mail "
+ *     fields={"mail"},
+ *     message="Ce mail existe déjà, veuillez en saisir un nouveau"
+ * )
+ * @ApiFilter(
+ *      SearchFilter::class,
+ *      properties={
+ *          "mail": "exact"
+ *      }
  * )
  */
 class Adherent implements UserInterface
@@ -34,41 +84,50 @@ class Adherent implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"post_manager", "post_admin", "get_adherent", "get_manager", "put_adherent", "put_admin"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"post_manager", "post_admin", "get_adherent", "get_manager", "put_adherent", "put_admin"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"post_manager", "post_admin", "get_adherent", "get_manager", "put_adherent", "put_admin"})
      */
     private $adresse;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"post_manager", "post_admin", "get_adherent", "get_manager", "put_adherent", "put_admin"})
      */
     private $codeCommune;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"post_manager", "post_admin", "get_adherent", "get_manager", "put_admin"})
      */
     private $mail;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"post_manager", "post_admin", "get_adherent", "get_manager", "put_adherent", "put_admin"})
      */
     private $tel;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"post_manager", "post_admin", "get_manager", "put_admin"})
+     * @ApiSubresource
      */
     private $password;
     
     /**
      * @ORM\Column(type="array", length=255, nullable=true)
+     * @Groups({"post_admin", "get_manager", "put_manager", "put_admin", "get_adherent"})
      */
     private $roles;
 

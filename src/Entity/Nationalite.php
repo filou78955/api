@@ -23,16 +23,18 @@ class Nationalite
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"get_role_auteurs"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"get_role_auteurs"})
      */
     private $libelle;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Auteur", mappedBy="Nationalite")
+     * @ORM\OneToMany(targetEntity="App\Entity\Auteur", mappedBy="nationalite")
      */
     private $auteurs;
 
