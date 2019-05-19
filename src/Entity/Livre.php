@@ -164,6 +164,7 @@ class Livre
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"get_role_adherent","put_manager"})
      */
     private $dispo;
 
